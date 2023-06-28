@@ -422,6 +422,110 @@ int generateSudokuGame(int n) {
 	fclose(sg);
 	return 0;
 }
+void creat_blank_u()
+{
+	int round = 25;
+	int temp_row = -1;
+	int temp_col = -1;
+	int temp_num = -1;
+
+	for (int i = 0; i < round; i++)
+	{
+		int j = rand() % 10;
+		int k = rand() % 10;
+
+		if (sudoku_arr[j][k] != 0)
+		{
+			temp_row = j;
+			temp_col = k;
+			temp_num = sudoku_arr[j][k];
+			sudoku_arr[j][k] = 0;
+			if (!hasUniqueSolution(sudoku_arr, temp_num, temp_row, temp_col)) {
+				sudoku_arr[j][k] = temp_num;
+				i--;
+			}
+				
+		}
+	}
+}
+int generateSudokuGameUnique(int n) {
+	generateSudokuEndGame(n);
+	char content[1000];
+	FILE* sg = fopen("./sudoku_endgame.txt", "r");
+	if (sg == NULL) {
+		cout << "open question file error" << endl;
+		return 1;
+	}
+	save_num = 0;
+	memset(save_arr, 0, sizeof(save_arr));
+
+	while (!feof(sg)) {
+		memset(content, 0, sizeof(content));
+		memset(blank_arr, 0, sizeof(blank_arr));
+		memset(row_record, 0, sizeof(row_record));
+		memset(col_record, 0, sizeof(col_record));
+		memset(block_record, 0, sizeof(block_record));
+		int size = fread(content, sizeof(char), 163 * sizeof(char), sg);
+		if (size < 161 && size>0) {
+			cout << "read file error" << endl;
+			return -1;
+		}
+		else if (size == 0)
+			break;
+		int x = 0;
+		int y = 0;
+
+		for (int i = 0;i < 162;i++) {
+
+			if (content[i] == ' ' || content[i] == '$' || content[i] == '\n')
+				continue;
+			sudoku_arr[x][y] = content[i] - '0';
+			if (y >= 8) {
+				y = 0;
+				x++;
+			}
+			else
+				y++;
+		}
+		creat_blank_u();
+		/*for (int i = 0;i < 9;i++)
+		{
+			for (int j = 0;j < 9;j++)
+			{
+				cout << sudoku_arr[i][j] << " ";
+			}
+			cout << endl;
+		}*/
+		for (int i = 0;i < 9;i++)
+		{
+			for (int j = 0;j < 9;j++)
+			{
+				save_arr[save_num] = sudoku_arr[i][j] + '0';
+
+				if (save_arr[save_num] == '0')
+					save_arr[save_num] = '$';
+				save_num++;
+				if (j != 8) {
+					save_arr[save_num] = ' ';
+					save_num++;
+				}
+				else
+				{
+					save_arr[save_num] = '\n';//end of a row
+					save_num++;
+				}
+			}
+		}
+		save_arr[save_num] = '\n';//end of a row
+		save_num++;
+	}
+	FILE* result = fopen("./sudoku_game.txt", "wt");
+	fwrite(save_arr, sizeof(char), save_num, result);
+	cout << "finish solve" << endl;
+	fclose(result);
+	fclose(sg);
+	return 0;
+}
 int main(int argc, char** argv)
 {
 	if (argc == 1)
@@ -456,20 +560,24 @@ int main(int argc, char** argv)
 		else if (strcmp(argv[1], "-n") == 0)
 		{
 			int n = atoi(argv[2]);
-			if (generateSudokuGame(n))
-			{
-				cout << "fail to find unique solution" << endl;
-				return 1;
+			if (argc == 3) {
+				if (generateSudokuGame(n))
+				{
+					cout << "fail to find unique solution" << endl;
+					return 1;
+				}
 			}
-		}
-		else if (strcmp(argv[1], "-u") == 0)
-		{
-			if (test(argv[2]))
+			else if(strcmp(argv[3], "-u") == 0)
 			{
-				cout << "fail to find unique solution" << endl;
-				return 1;
+				if (generateSudokuGameUnique(n))
+				{
+					cout << "fail to find unique solution" << endl;
+					return 1;
+				}
 			}
+			
 		}
+
 	}
 }
 
