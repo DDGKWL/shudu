@@ -56,7 +56,7 @@ int generateSudokuEndGame(int n) {
 							save_arr[save_num] = number_list[tmp] + '0';
 							save_num++;
 							if (j != 8) {
-								save_arr[save_num] = '$';
+								save_arr[save_num] = ' ';
 								save_num++;
 							}
 							else
@@ -158,7 +158,7 @@ int solveSudokuGame(char* questpath) {
 			}else
 				y++;
 		}
-
+//******************************
 		int num_blank = 0;
 		int col_num[9] = { 0 };
 		int row_num[9] = { 0 };
@@ -189,6 +189,7 @@ int solveSudokuGame(char* questpath) {
 			blank_arr[i].count = col_num[blank_arr[i].y] + row_num[blank_arr[i].x] + block_num[getBlockIndex(blank_arr[i].x, blank_arr[i].y)];
 		}
 		sort(blank_arr, blank_arr + num_blank, cmp);
+//******************************
 		if (fillNumber(0, num_blank) == false)
 			cout << "fail to solve this game" << endl;
 		else
@@ -199,8 +200,10 @@ int solveSudokuGame(char* questpath) {
 				{
 					save_arr[save_num] = sudoku_arr[i][j] + '0';
 					save_num++;
-					if (j != 8) {
+					if (save_arr[save_num] == '0')
 						save_arr[save_num] = '$';
+					if (j != 8) {
+						save_arr[save_num] = ' ';
 						save_num++;
 					}
 					else
@@ -215,6 +218,204 @@ int solveSudokuGame(char* questpath) {
 		}
 	}
 	FILE* result = fopen("./sudoku.txt", "wt");
+	fwrite(save_arr, sizeof(char), save_num, result);
+	cout << "finish solve" << endl;
+	fclose(result);
+	fclose(sg);
+	return 0;
+}
+bool fillNumberNotN(int index, int size,int n ,int x,int y,int tmp[9][9])
+{
+	if (index != size)
+	{
+		for (int i = 1;i < 10;i++)
+		{
+			if ((blank_arr[index].x == x) && (blank_arr[index].y == y) && (i == n)) {
+				//cout << i << endl;
+				continue;
+			}
+				
+			if (canFill(blank_arr[index].x, blank_arr[index].y, i))
+			{
+				tmp[blank_arr[index].x][blank_arr[index].y] = i;
+				
+				updateRecord(blank_arr[index].x, blank_arr[index].y, i, 1);
+				if (fillNumberNotN(index + 1, size,n,x,y,tmp))
+					return true;
+				updateRecord(blank_arr[index].x, blank_arr[index].y, i, 0);
+				tmp[blank_arr[index].x][blank_arr[index].y] = 0;
+			}
+		}
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+bool hasUniqueSolution(int sudoku[9][9],int n,int x,int y) {
+	int tmp[9][9];
+	memcpy(tmp,sudoku,9*9*sizeof(int));
+	memset(blank_arr, 0, sizeof(blank_arr));
+	memset(row_record, 0, sizeof(row_record));
+	memset(col_record, 0, sizeof(col_record));
+	memset(block_record, 0, sizeof(block_record));
+	int num_blank = 0;
+	int col_num[9] = { 0 };
+	int row_num[9] = { 0 };
+	int block_num[9] = { 0 };
+	for (int i = 0;i < 9;i++)
+	{
+		for (int j = 0;j < 9;j++)
+		{
+			if (tmp[i][j] != 0) //not blank then update 
+			{
+				updateRecord(i, j, sudoku_arr[i][j], 1);
+				row_num[i]++;
+				col_num[j]++;
+				block_num[getBlockIndex(i, j)]++;
+			}
+			else//blank then record
+			{
+				blank_arr[num_blank].x = i;
+				blank_arr[num_blank].y = j;
+				num_blank++;
+			}
+		}
+	}
+	for (int i = 0;i < num_blank;i++)
+	{
+		blank_arr[i].count = col_num[blank_arr[i].y] + row_num[blank_arr[i].x] + block_num[getBlockIndex(blank_arr[i].x, blank_arr[i].y)];
+	}
+	sort(blank_arr, blank_arr + num_blank, cmp);
+
+	if (fillNumberNotN(0, num_blank, n, x, y,tmp) == false)
+		return true;
+	else
+		return false;
+}
+int test(char *path)
+{
+	char content[1000];
+	memset(content, 0, sizeof(content));
+	FILE* sg = fopen(path, "r");
+	if (sg == NULL) {
+		cout << "open test file error" << endl;
+		return 1;
+	}
+	int x = 0;
+	int y = 0;
+	fread(content, sizeof(char), 163 * sizeof(char), sg);
+	for (int i = 0;i < 162;i++) {
+		if (content[i] == ' ' || content[i] == '$' || content[i] == '\n')
+			continue;
+		sudoku_arr[x][y] = content[i] - '0';
+		if (y >= 8) {
+			y = 0;
+			x++;
+		}
+		else
+			y++;
+	}
+
+	if (hasUniqueSolution(sudoku_arr, 1, 0, 0))
+		cout << "has unique solution"<<endl;
+	else
+		cout << "has no unique solution" << endl;
+	return 0;
+}
+void creat_blank()
+{
+	int round = 25;
+	int temp_row = -1;
+	int temp_col = -1;
+	int temp_num = -1;
+
+	for (int i = 0; i < round; i++)
+	{
+		int j = rand() % 10;
+		int k = rand() % 10;
+
+		if (sudoku_arr[j][k] != 0)
+		{
+			temp_row = j;
+			temp_col = k;
+			temp_num = sudoku_arr[j][k];
+			sudoku_arr[j][k] = 0;
+		}
+	}
+}
+int generateSudokuGame(int n) {
+	generateSudokuEndGame(n);
+	char content[1000];
+	FILE* sg = fopen("./sudoku_endgame.txt", "r");
+	if (sg == NULL) {
+		cout << "open question file error" << endl;
+		return 1;
+	}
+	save_num = 0;
+	memset(save_arr, 0, sizeof(save_arr));
+
+	while (!feof(sg)) {
+		memset(content, 0, sizeof(content));
+		memset(blank_arr, 0, sizeof(blank_arr));
+		memset(row_record, 0, sizeof(row_record));
+		memset(col_record, 0, sizeof(col_record));
+		memset(block_record, 0, sizeof(block_record));
+		int size = fread(content, sizeof(char), 163 * sizeof(char), sg);
+		if (size < 161&&size>0) {
+			cout << "read file error" << endl;
+			return -1;
+		}else if(size==0)
+			break;
+		int x = 0;
+		int y = 0;
+
+		for (int i = 0;i < 162;i++) {
+
+			if (content[i] == ' ' || content[i] == '$' || content[i] == '\n')
+				continue;
+			sudoku_arr[x][y] = content[i] - '0';
+			if (y >= 8) {
+				y = 0;
+				x++;
+			}
+			else
+				y++;
+		}
+		creat_blank();
+		/*for (int i = 0;i < 9;i++)
+		{
+			for (int j = 0;j < 9;j++)
+			{
+				cout << sudoku_arr[i][j] << " ";
+			}
+			cout << endl;
+		}*/
+		for (int i = 0;i < 9;i++)
+		{
+			for (int j = 0;j < 9;j++)
+			{
+				save_arr[save_num] = sudoku_arr[i][j] + '0';
+				
+				if (save_arr[save_num] == '0')
+					save_arr[save_num] = '$';
+				save_num++;
+				if (j != 8) {
+					save_arr[save_num] = ' ';
+					save_num++;
+				}
+				else
+				{
+					save_arr[save_num] = '\n';//end of a row
+					save_num++;
+				}
+			}
+		}
+		save_arr[save_num] = '\n';//end of a row
+		save_num++;
+	}
+	FILE* result = fopen("./sudoku_game.txt", "wt");
 	fwrite(save_arr, sizeof(char), save_num, result);
 	cout << "finish solve" << endl;
 	fclose(result);
@@ -252,5 +453,24 @@ int main(int argc, char** argv)
 				return 1;
 			}
 		}
+		else if (strcmp(argv[1], "-n") == 0)
+		{
+			int n = atoi(argv[2]);
+			if (generateSudokuGame(n))
+			{
+				cout << "fail to find unique solution" << endl;
+				return 1;
+			}
+		}
+		else if (strcmp(argv[1], "-u") == 0)
+		{
+			if (test(argv[2]))
+			{
+				cout << "fail to find unique solution" << endl;
+				return 1;
+			}
+		}
 	}
 }
+
+
