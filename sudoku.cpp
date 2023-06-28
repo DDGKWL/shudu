@@ -5,8 +5,16 @@
 using namespace std;
 long save_num = 0;
 char save_arr[300000000] = { 0 };
+int sudoku_arr[9][9] = { 0 };
+int col_record[9][10] = { 0 };
+int row_record[9][10] = { 0 };
+int block_record[9][10] = { 0 };
+struct SudokuSpace {
+	int x, y;	//数独空白点的位置
+	int count;			//计数器，用来排序
+}blank_arr[100];
 int generateSudokuEndGame(int n) {
-	int col_list[9] = { 0,1,2,3,4,5,6,7,8 };
+	int row_list[9] = { 0,1,2,3,4,5,6,7,8 };
 	int	number_list[9] = { 1,2,3,4,5,6,7,8,9 };
 	string sudoku_template[9] = {
 		"123456789",
@@ -43,7 +51,7 @@ int generateSudokuEndGame(int n) {
 				do {
 					for (int i = 0; i < 9; i++) {
 						for (int j = 0; j < 9; j++) {
-							int tmp = (int)(sudoku_template[col_list[i]][j] - '0') - 1;
+							int tmp = (int)(sudoku_template[row_list[i]][j] - '0') - 1;
 
 							save_arr[save_num] = number_list[tmp] + '0';
 							save_num++;
@@ -53,7 +61,7 @@ int generateSudokuEndGame(int n) {
 							}
 							else
 							{
-								save_arr[save_num] = '\n';//end of a col
+								save_arr[save_num] = '\n';//end of a row
 								save_num++;
 							}
 						}
@@ -67,11 +75,151 @@ int generateSudokuEndGame(int n) {
 						return 0;
 					}
 				} while (next_permutation(number_list, number_list + 9));//exchange in number_list
-			} while (next_permutation(col_list + 6, col_list + 9));//exchange col 7~9
-		} while (next_permutation(col_list + 3, col_list + 6));//exchange col 4~6
-	} while (next_permutation(col_list, col_list + 3));//exchange col 1~3
+			} while (next_permutation(row_list + 6, row_list + 9));//exchange row 7~9
+		} while (next_permutation(row_list + 3, row_list + 6));//exchange row 4~6
+	} while (next_permutation(row_list, row_list + 3));//exchange row 1~3
 	
 	return 1;
+}
+int getBlockIndex(int x, int y) {
+	if (x < 0 || y < 0 || x >=9 || y>8) return -1;
+	return ((x / 3) * 3 + (y / 3));
+}
+void updateRecord(int x, int y, int number, int flag) {
+	row_record[x][number] = flag;
+	col_record[y][number] = flag;
+	block_record[getBlockIndex(x, y)][number] = flag;
+}
+bool canFill(int x,int y,int number)
+{
+	if (row_record[x][number] == 0 && col_record[y][number] == 0 && block_record[getBlockIndex(x, y)][number] == 0)
+		return true;
+	else
+		return false;
+}
+
+bool fillNumber(int index,int size)
+{
+	if (index != size)
+	{
+		for (int i = 1;i < 10;i++)
+		{
+			if (canFill(blank_arr[index].x, blank_arr[index].y, i))
+			{
+				sudoku_arr[blank_arr[index].x][blank_arr[index].y] = i;
+				updateRecord(blank_arr[index].x, blank_arr[index].y, i, 1);
+				if (fillNumber(index + 1, size))
+					return true;
+				updateRecord(blank_arr[index].x, blank_arr[index].y, i, 0);
+				sudoku_arr[blank_arr[index].x][blank_arr[index].y] = 0;
+			}
+		}
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+bool cmp(struct SudokuSpace &a, struct SudokuSpace &b) {
+	return a.count > b.count;
+}
+int solveSudokuGame(char* questpath) {
+	char content[1000];
+	FILE *sg = fopen(questpath, "r");
+	if (sg == NULL) {
+		cout << "open question file error" << endl;
+		return 1;
+	}
+	save_num = 0;
+	memset(save_arr, 0, sizeof(save_arr));
+	
+	while (!feof(sg)) {
+		memset(content, 0, sizeof(content));
+		memset(blank_arr, 0, sizeof(blank_arr));
+		memset(row_record, 0, sizeof(row_record));
+		memset(col_record, 0, sizeof(col_record));
+		memset(block_record, 0, sizeof(block_record));
+		if (fread(content, sizeof(char), 163 * sizeof(char), sg) < 161) {	
+			cout << "read file error" << endl;
+			return -1;
+		};
+		int x = 0;
+		int y = 0;
+		
+		for (int i = 0;i < 162;i++) {
+			
+			if (content[i] == ' '||content[i] == '$' || content[i] == '\n')
+				continue;
+			sudoku_arr[x][y] = content[i] - '0';
+			if (y >=8) {
+				y = 0;
+				x++;
+			}else
+				y++;
+		}
+
+		int num_blank = 0;
+		int col_num[9] = { 0 };
+		int row_num[9] = { 0 };
+		int block_num[9] = { 0 };
+
+		for (int i = 0;i < 9;i++)
+		{
+			for (int j = 0;j < 9;j++)
+			{
+				if (sudoku_arr[i][j] != 0) //not blank then update 
+				{
+					updateRecord(i, j, sudoku_arr[i][j], 1);
+					row_num[i]++;
+					col_num[j]++;
+					block_num[getBlockIndex(i, j)]++;
+				}
+				else//blank then record
+				{
+					blank_arr[num_blank].x = i;
+					blank_arr[num_blank].y = j;
+					num_blank++;
+				}
+
+			}
+		}
+		for (int i = 0;i < num_blank;i++)
+		{
+			blank_arr[i].count = col_num[blank_arr[i].y] + row_num[blank_arr[i].x] + block_num[getBlockIndex(blank_arr[i].x, blank_arr[i].y)];
+		}
+		sort(blank_arr, blank_arr + num_blank, cmp);
+		if (fillNumber(0, num_blank) == false)
+			cout << "fail to solve this game" << endl;
+		else
+		{
+			for (int i = 0;i < 9;i++)
+			{
+				for (int j = 0;j < 9;j++)
+				{
+					save_arr[save_num] = sudoku_arr[i][j] + '0';
+					save_num++;
+					if (j != 8) {
+						save_arr[save_num] = '$';
+						save_num++;
+					}
+					else
+					{
+						save_arr[save_num] = '\n';//end of a row
+						save_num++;
+					}
+				}
+			}
+			save_arr[save_num] = '\n';//end of a row
+			save_num++;
+		}
+	}
+	FILE* result = fopen("./sudoku.txt", "wt");
+	fwrite(save_arr, sizeof(char), save_num, result);
+	cout << "finish solve" << endl;
+	fclose(result);
+	fclose(sg);
+	return 0;
 }
 int main(int argc, char** argv)
 {
@@ -96,6 +244,13 @@ int main(int argc, char** argv)
 				return 1;
 			}
 			
+		}else if (strcmp(argv[1], "-s") == 0)
+		{
+			if (solveSudokuGame(argv[2]))
+			{
+				cout << "fail to solve" << endl;
+				return 1;
+			}
 		}
 	}
 }
