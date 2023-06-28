@@ -10,8 +10,8 @@ int col_record[9][10] = { 0 };
 int row_record[9][10] = { 0 };
 int block_record[9][10] = { 0 };
 struct SudokuSpace {
-	int x, y;	//数独空白点的位置
-	int count;			//计数器，用来排序
+	int x, y;	//�����հ׵��λ��
+	int count;			//����������������
 }blank_arr[100];
 int generateSudokuEndGame(int n) {
 	int row_list[9] = { 0,1,2,3,4,5,6,7,8 };
@@ -566,24 +566,28 @@ int main(int argc, char** argv)
 				return 1;
 			}
 		}
-		else if (strcmp(argv[1], "-n") == 0 && strcmp(argv[3], "-m") == 0)
-		{
-			int n = atoi(argv[2]);
-			int m = atoi(argv[4]);
-			if (generateLevel(n, m))
-			{
-				cout << "fail to generate corresponding level games" << endl;
-				return 1;
-			}
-		}
 		else if (strcmp(argv[1], "-n") == 0)
 		{
 			int n = atoi(argv[2]);
-			if (generateSudokuGame(n))
+
+			if (argv[3])
 			{
-				cout << "fail to find unique solution" << endl;
-				return 1;
+				if (strcmp(argv[3], "-m") == 0)
+				{
+					int m = atoi(argv[4]);
+					if (generateLevel(n, m))
+					{
+						cout << "fail to generate corresponding level games" << endl;
+						return 1;
+					}
+				}
 			}
+			else
+				if (generateSudokuGame(n))
+				{
+					cout << "fail to find unique solution" << endl;
+					return 1;
+				}
 		}
 		else if (strcmp(argv[1], "-u") == 0)
 		{
