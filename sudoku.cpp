@@ -156,7 +156,7 @@ int solveSudokuGame(char* questpath) {
             if (content[i] == ' '|| content[i] == '\n')
                 continue;
             if (content[i] == '$')
-                sudoku_arr[x][y] = '0';
+                content[i] = '0';
             sudoku_arr[x][y] = content[i] - '0';
             if (y >= 8) {
                 y = 0;
@@ -687,7 +687,7 @@ int generateSudokuGame(int n) {
     return 0;
 }
 int main(int argc, char** argv) {
-    if (argc == 1) {
+/*  if (argc == 1) {
         cout << "no argument" << endl;
         return 0;
     } else {
@@ -759,7 +759,27 @@ int main(int argc, char** argv) {
                 return 1;
             }
         }
-    }
+    }*/
+    int n = 1000;
+    int m = 1;
+    int min = 22;
+    int max = 50;
+    char flie_c[] = "D:\\tempC++\\sudoku2\\Debug\\temp_sudoku_game.txt";
+    char* file = flie_c;
+
+    char rflie_c[] = "wrong.txt";
+    char* rfile = rflie_c;
+
+    generateSudokuEndGame(1000000);      // -c
+    generateSudokuGame(n);              // -n
+    generateLevel(n, m);                // -n -m
+    generateRange(n, min, max);         // -n -r
+    generateSudokuGameUnique(n);        // -u
+    generateSudokuEndGame(1000001);      // -c
+    generateLevel(100, 3);                // -n -m
+    generateLevel(100, 2);                // -n -m
+    solveSudokuGame(rflie_c);            // -s
+    solveSudokuGame(flie_c);            // -s
 }
 
 
