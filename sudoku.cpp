@@ -279,35 +279,6 @@ bool hasUniqueSolution(int sudoku[9][9], int n, int x, int y) {
     else
         return false;
 }
-int test(char* path) {
-    char content[1000];
-    memset(content, 0, sizeof(content));
-    FILE* sg = fopen(path, "r");
-    if (sg == NULL) {
-        cout << "open test file error" << endl;
-        return 1;
-    }
-    int x = 0;
-    int y = 0;
-    fread(content, sizeof(char), 163 * sizeof(char), sg);
-    for (int i = 0; i < 162; i++) {
-        if (content[i] == ' ' || content[i] == '$' || content[i] == '\n')
-            continue;
-        sudoku_arr[x][y] = content[i] - '0';
-        if (y >= 8) {
-            y = 0;
-            x++;
-        } else {
-            y++;
-        }
-    }
-
-    if (hasUniqueSolution(sudoku_arr, 1, 0, 0))
-        cout << "has unique solution" << endl;
-    else
-        cout << "has no unique solution" << endl;
-    return 0;
-}
 void creat_blank() {
     int round = 25;
     int temp_row = -1;
@@ -445,7 +416,7 @@ int generateSudokuGameUnique(int n) {
         save_arr[save_num] = '\n';
         save_num++;
     }
-    FILE* result = fopen("./sudoku_game.txt", "wt");
+    FILE* result = fopen("./sudoku_game_unique.txt", "wt");
     fwrite(save_arr, sizeof(char), save_num, result);
     cout << "finish solve" << endl;
     fclose(result);
@@ -622,6 +593,10 @@ int generateRange(int n, int min, int max) {
 
 
 int generateSudokuGame(int n) {
+    if (n > 10000 || n < 1) {
+        cout << "n should in 1~10000" << endl;
+        return 1;
+    }
     generateSudokuEndGame(n);
     char content[1000];
     FILE* sg = fopen("./sudoku_endgame.txt", "r");
@@ -687,7 +662,7 @@ int generateSudokuGame(int n) {
     return 0;
 }
 int main(int argc, char** argv) {
-/*  if (argc == 1) {
+    if (argc == 1) {
         cout << "no argument" << endl;
         return 0;
     } else {
@@ -759,27 +734,7 @@ int main(int argc, char** argv) {
                 return 1;
             }
         }
-    }*/
-    int n = 1000;
-    int m = 1;
-    int min = 22;
-    int max = 50;
-    char flie_c[] = "D:\\tempC++\\sudoku2\\Debug\\temp_sudoku_game.txt";
-    char* file = flie_c;
-
-    char rflie_c[] = "wrong.txt";
-    char* rfile = rflie_c;
-
-    generateSudokuEndGame(1000000);      // -c
-    generateSudokuGame(n);              // -n
-    generateLevel(n, m);                // -n -m
-    generateRange(n, min, max);         // -n -r
-    generateSudokuGameUnique(n);        // -u
-    generateSudokuEndGame(1000001);      // -c
-    generateLevel(100, 3);                // -n -m
-    generateLevel(100, 2);                // -n -m
-    solveSudokuGame(rflie_c);            // -s
-    solveSudokuGame(flie_c);            // -s
+    }
 }
 
 
