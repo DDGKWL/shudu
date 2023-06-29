@@ -153,8 +153,10 @@ int solveSudokuGame(char* questpath) {
         int y = 0;
 
         for (int i = 0; i < 162; i++) {
-            if (content[i] == ' ' || content[i] == '$' || content[i] == '\n')
+            if (content[i] == ' '|| content[i] == '\n')
                 continue;
+            if (content[i] == '$')
+                sudoku_arr[x][y] = '0';
             sudoku_arr[x][y] = content[i] - '0';
             if (y >= 8) {
                 y = 0;
