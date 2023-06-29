@@ -45,7 +45,8 @@ int generateSudokuEndGame(int n) {
             cout << "open file error" << endl;
             return 1;
         }
-    } else {
+    }
+    else {
         cout << "n should in 1~1000000" << endl;
         return 1;
     }
@@ -67,7 +68,8 @@ int generateSudokuEndGame(int n) {
                             if (j != 8) {
                                 save_arr[save_num] = ' ';
                                 save_num++;
-                            } else {
+                            }
+                            else {
                                 save_arr[save_num] = '\n';  // end of a row
                                 save_num++;
                             }
@@ -122,7 +124,8 @@ bool fillNumber(int index, int size) {
             }
         }
         return false;
-    } else {
+    }
+    else {
         return true;
     }
 }
@@ -153,15 +156,16 @@ int solveSudokuGame(char* questpath) {
         int y = 0;
 
         for (int i = 0; i < 162; i++) {
-            if (content[i] == ' '|| content[i] == '\n')
+            if (content[i] == ' ' || content[i] == '\n')
                 continue;
             if (content[i] == '$')
-                sudoku_arr[x][y] = '0';
+                content[i] = '0';
             sudoku_arr[x][y] = content[i] - '0';
             if (y >= 8) {
                 y = 0;
                 x++;
-            } else {
+            }
+            else {
                 y++;
             }
         }
@@ -177,7 +181,8 @@ int solveSudokuGame(char* questpath) {
                     row_num[i]++;
                     col_num[j]++;
                     block_num[getBlockIndex(i, j)]++;
-                } else {  // blank then record
+                }
+                else {  // blank then record
                     blank_arr[num_blank].x = i;
                     blank_arr[num_blank].y = j;
                     num_blank++;
@@ -192,7 +197,8 @@ int solveSudokuGame(char* questpath) {
         sort(blank_arr, blank_arr + num_blank, cmp);
         if (fillNumber(0, num_blank) == false) {
             cout << "fail to solve this game" << endl;
-        } else {
+        }
+        else {
             for (int i = 0; i < 9; i++) {
                 for (int j = 0; j < 9; j++) {
                     save_arr[save_num] = sudoku_arr[i][j] + '0';
@@ -202,7 +208,8 @@ int solveSudokuGame(char* questpath) {
                     if (j != 8) {
                         save_arr[save_num] = ' ';
                         save_num++;
-                    } else {
+                    }
+                    else {
                         save_arr[save_num] = '\n';  // end of a row
                         save_num++;
                     }
@@ -238,7 +245,8 @@ bool fillNumberNotN(int index, int size, int n, int x, int y, int tmp[9][9]) {
             }
         }
         return false;
-    } else {
+    }
+    else {
         return true;
     }
 }
@@ -260,7 +268,8 @@ bool hasUniqueSolution(int sudoku[9][9], int n, int x, int y) {
                 row_num[i]++;
                 col_num[j]++;
                 block_num[getBlockIndex(i, j)]++;
-            } else {  // blank then record
+            }
+            else {  // blank then record
                 blank_arr[num_blank].x = i;
                 blank_arr[num_blank].y = j;
                 num_blank++;
@@ -278,35 +287,6 @@ bool hasUniqueSolution(int sudoku[9][9], int n, int x, int y) {
         return true;
     else
         return false;
-}
-int test(char* path) {
-    char content[1000];
-    memset(content, 0, sizeof(content));
-    FILE* sg = fopen(path, "r");
-    if (sg == NULL) {
-        cout << "open test file error" << endl;
-        return 1;
-    }
-    int x = 0;
-    int y = 0;
-    fread(content, sizeof(char), 163 * sizeof(char), sg);
-    for (int i = 0; i < 162; i++) {
-        if (content[i] == ' ' || content[i] == '$' || content[i] == '\n')
-            continue;
-        sudoku_arr[x][y] = content[i] - '0';
-        if (y >= 8) {
-            y = 0;
-            x++;
-        } else {
-            y++;
-        }
-    }
-
-    if (hasUniqueSolution(sudoku_arr, 1, 0, 0))
-        cout << "has unique solution" << endl;
-    else
-        cout << "has no unique solution" << endl;
-    return 0;
 }
 void creat_blank() {
     int round = 25;
@@ -326,7 +306,8 @@ void creat_blank() {
             temp_col = k;
             temp_num = sudoku_arr[j][k];
             sudoku_arr[j][k] = 0;
-        } else {
+        }
+        else {
             i--;
         }
     }
@@ -353,7 +334,8 @@ void creat_blank_u() {
                 sudoku_arr[j][k] = temp_num;
                 i--;
             }
-        } else {
+        }
+        else {
             i--;
         }
     }
@@ -382,7 +364,8 @@ void creat_blank_level(int level) {
             temp_col = k;
             temp_num = sudoku_arr[j][k];
             sudoku_arr[j][k] = 0;
-        } else {
+        }
+        else {
             i--;
         }
     }
@@ -408,7 +391,8 @@ int generateSudokuGameUnique(int n) {
         if (size < 161 && size>0) {
             cout << "read file error" << endl;
             return -1;
-        } else if (size == 0) {
+        }
+        else if (size == 0) {
             break;
         }
         int x = 0;
@@ -421,7 +405,8 @@ int generateSudokuGameUnique(int n) {
             if (y >= 8) {
                 y = 0;
                 x++;
-            } else {
+            }
+            else {
                 y++;
             }
         }
@@ -436,7 +421,8 @@ int generateSudokuGameUnique(int n) {
                 if (j != 8) {
                     save_arr[save_num] = ' ';
                     save_num++;
-                } else {
+                }
+                else {
                     save_arr[save_num] = '\n';  // end of a row
                     save_num++;
                 }
@@ -474,7 +460,8 @@ void creat_blank_range(int min, int max) {
             temp_col = k;
             temp_num = sudoku_arr[j][k];
             sudoku_arr[j][k] = 0;
-        } else {
+        }
+        else {
             i--;
         }
     }
@@ -502,7 +489,8 @@ int generateLevel(int n, int m) {
         if (size < 161 && size>0) {
             cout << "read file error" << endl;
             return -1;
-        } else if (size == 0) {
+        }
+        else if (size == 0) {
             break;
         }
         int x = 0;
@@ -515,7 +503,8 @@ int generateLevel(int n, int m) {
             if (y >= 8) {
                 y = 0;
                 x++;
-            } else {
+            }
+            else {
                 y++;
             }
         }
@@ -530,7 +519,8 @@ int generateLevel(int n, int m) {
                 if (j != 8) {
                     save_arr[save_num] = ' ';
                     save_num++;
-                } else {
+                }
+                else {
                     save_arr[save_num] = '\n';  // end of a row
                     save_num++;
                 }
@@ -572,7 +562,8 @@ int generateRange(int n, int min, int max) {
         if (size < 161 && size>0) {
             cout << "read file error" << endl;
             return -1;
-        } else if (size == 0) {
+        }
+        else if (size == 0) {
             break;
         }
         int x = 0;
@@ -585,7 +576,8 @@ int generateRange(int n, int min, int max) {
             if (y >= 8) {
                 y = 0;
                 x++;
-            } else {
+            }
+            else {
                 y++;
             }
         }
@@ -601,7 +593,8 @@ int generateRange(int n, int min, int max) {
                 if (j != 8) {
                     save_arr[save_num] = ' ';
                     save_num++;
-                } else {
+                }
+                else {
                     save_arr[save_num] = '\n';  // end of a row
                     save_num++;
                 }
@@ -642,7 +635,8 @@ int generateSudokuGame(int n) {
         if (size < 161 && size>0) {
             cout << "read file error" << endl;
             return -1;
-        } else if (size == 0) {
+        }
+        else if (size == 0) {
             break;
         }
         int x = 0;
@@ -655,7 +649,8 @@ int generateSudokuGame(int n) {
             if (y >= 8) {
                 y = 0;
                 x++;
-            } else {
+            }
+            else {
                 y++;
             }
         }
@@ -670,7 +665,8 @@ int generateSudokuGame(int n) {
                 if (j != 8) {
                     save_arr[save_num] = ' ';
                     save_num++;
-                } else {
+                }
+                else {
                     save_arr[save_num] = '\n';  // end of a row
                     save_num++;
                 }
@@ -687,79 +683,25 @@ int generateSudokuGame(int n) {
     return 0;
 }
 int main(int argc, char** argv) {
-    if (argc == 1) {
-        cout << "no argument" << endl;
-        return 0;
-    } else {
-        if (argc == 2 && strcmp(argv[1], "-c") == 0) {
-            cout << "please input the number of sukodu endgames" << endl;
-            return 1;
-        }
+    int n = 1000;
+    int m = 1;
+    int min = 22;
+    int max = 50;
+    char flie_c[] = "D:\\tempC++\\sudoku2\\Debug\\temp_sudoku_game.txt";
+    char* file = flie_c;
 
-        if (strcmp(argv[1], "-c") == 0) {
-            int n = atoi(argv[2]);
-            if (generateSudokuEndGame(n)) {
-                cout << "fail to generate" << endl;
-                return 1;
-            }
+    char rflie_c[] = "wrong.txt";
+    char* rfile = rflie_c;
 
-        } else if (strcmp(argv[1], "-s") == 0) {
-            if (solveSudokuGame(argv[2])) {
-                cout << "fail to solve" << endl;
-                return 1;
-            }
-        } else if (strcmp(argv[1], "-n") == 0) {
-            int n = atoi(argv[2]);
-            if (argv[3]) {
-                if (strcmp(argv[3], "-m") == 0) {
-                    int m = atoi(argv[4]);
-                    if (m > 3 || m < 1) {
-                        cout << "fail to generate corresponding level games"
-                            << endl;
-                        return 1;
-                    }
-                    if (generateLevel(n, m)) {
-                        cout << "fail to generate corresponding level games"
-                            << endl;
-                        return 1;
-                    }
-                } else if (strcmp(argv[3], "-r") == 0) {
-                    if (argv[4][2] != '~') {
-                        cout << "fail to generate corresponding range games"
-                            << endl;
-                        return 1;
-                    }
-                    int a = argv[4][0] - '0';
-                    int b = argv[4][1] - '0';
-                    int c = argv[4][3] - '0';
-                    int d = argv[4][4] - '0';
-
-                    int min = a * 10 + b;
-                    int max = c * 10 + d;
-                    if (min < 20 || max>55) {
-                        cout << "fail to generate corresponding range games"
-                            << endl;
-                        return 1;
-                    }
-                    if (generateRange(n, min, max)) {
-                        cout << "fail to generate corresponding range games"
-                            << endl;
-                        return 1;
-                    }
-                } else if (strcmp(argv[3], "-u") == 0) {
-                    if (generateSudokuGameUnique(n)) {
-                        cout <<
-                            "fail to generate sudoku game with unique solution"
-                            << endl;
-                        return 1;
-                    }
-                }
-            } else if (generateSudokuGame(n)) {
-                cout << "fail to find unique solution" << endl;
-                return 1;
-            }
-        }
-    }
+    generateSudokuEndGame(1000000);      //-c
+    generateSudokuGame(n);              //-n
+    generateLevel(n, m);                //-n -m
+    generateRange(n, min, max);         //-n -r
+    generateSudokuGameUnique(n);        //-u
+    generateSudokuEndGame(1000001);      //-c
+    generateLevel(100, 3);                //-n -m
+    generateLevel(100, 2);                //-n -m
+    solveSudokuGame(rflie_c);            //-s
+    solveSudokuGame(flie_c);            //-s
 }
-
 
